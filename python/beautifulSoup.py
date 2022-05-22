@@ -17,7 +17,6 @@ html = urlopen(url, context=ctx).read()
 soup = BeautifulSoup(html, "html.parser")
 sum=0
 count=0
-# Retrieve all of the anchor tags
 tags = soup('span')
 for tag in tags:
     f = int(tag.contents[0])
