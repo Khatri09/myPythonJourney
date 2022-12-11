@@ -1,0 +1,76 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: >
+  This is my first Template to you in CloudFormation.
+Transform: AWS::Serverless-2016-10-31
+Parameters:
+  InstanceType:
+    Type: String
+    Description: Please choose the instance type.
+    Default: t3.micro
+    AllowedValues:
+      - t3.micro
+      - t3.small
+      - a1.medium
+      - a1.large
+  KeyPair:
+    Type: AWS::EC2::KeyPair::KeyName
+    Description: The key pair to be used to access EC2 instance
+Mappings:
+  AMIRegionMap:
+    us-east-1:
+      "HVM64": "ami-0022f774911c1d690"
+      "HVMG2": "ami-0e449176cecc3e577"
+    eu-west-1:
+      "HVM64": "ami-0c1bc246476a5572b"
+      "HVMG2": "ami-0042fede24cb86d5c"
+Conditions:
+  CreateARMResources:
+    !Or [!Equals [!Ref InstanceType, 'a1.medium'], !Equals [!Ref InstanceType, 'a1.large']]
+  CreateX86Resources:
+    !Or [!Equals [!Ref InstanceType, 't3.small'], !Equals [!Ref InstanceType, 't3.micro']]
+Resources:
+  MyEc2InstanceX86:
+    Type: "AWS::EC2::Instance"
+    Condition: CreateX86Resources
+    Properties:
+      InstanceType:
+        Ref: InstanceType
+      KeyName:
+        Ref: KeyPair
+      ImageId: !FindInMap [AMIRegionMap, !Ref "AWS::Region", HVM64]
+  MyEc2InstanceARM:
+     Type: "AWS::EC2::Instance"
+     Condition: CreateARMResources
+     Properties:
+      InstanceType:
+        Ref: InstanceType
+      KeyName:
+        Ref: KeyPair
+      ImageId: !FindInMap [AMIRegionMap, !Ref "AWS::Region", HVMG2]
+  MyServerlessFunctions:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: index.handler
+      Runtime: python3.7
+      CodeUri: 's3://kkartik09/myDeploymentPackage.zip'
+  RootRole:
+    Type: 'AWS::IAM::Role'
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+              - ec2.amazonaws.com
+            Action:
+             - 'sts:AssumeRole'
+      Path: /
+      Policies:
+        - PolicyName: root
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Effect: Allow
+                Action: '*'
+                Resource: '*'

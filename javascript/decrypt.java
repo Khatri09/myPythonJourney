@@ -1,0 +1,9 @@
+RSAPrivateKey privateKey; //initialize with your key
+String jwtTokenAsString = "eyJlbmMiOiJBMjU2R0NNIiwiYWxnIjoiRUNESC1FUyIsImtpZCI6Imlzc3VlclNhbmRib3hPbmUiLCJlcGsiOnsia3R5IjoiRUMiLCJjcnYiOiJQLTI1NiIsIngiOiJxYlBaS0JOa0hFV2NGNEdTMTBNU0JpRzhIV1ZPX3pPNlhYSC1wMGFFbEdFIiwieSI6IlcyeFJ6d0tTbDBZV21mZWstX3E1dTZMaTJHd182OTZBREJrdXVQeDVWcXMifX0..80kOISmiZ2uNjNPe.esLdiXd6SADjZiiCi9PobyafLyUJmehRKaoQ-gIfveEiGZmC7hxfm34hzAZmu4KopjRJT6xTHpdPEB1klb-hWKJEI_MPbleY1WKmEw.Vbu4M43Nai4Cj5fig__ZLg"; //your token
+EncryptedJWT encryptedJWT = EncryptedJWT.parse(jwtTokenAsString);
+RSADecrypter decrypter = new RSADecrypter(privateKey);
+encryptedJWT.decrypt(decrypter);
+
+//Access content with diffrent methods
+//JWTClaimsSet claims = encryptedJWT.getJWTClaimsSet();
+//Payload payload = encryptedJWT.getPayload();
